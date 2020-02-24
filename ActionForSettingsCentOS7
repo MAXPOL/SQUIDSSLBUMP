@@ -1,0 +1,18 @@
+squid -v
+--enable-ssl-crtd и --with-openssl // This is OK
+cd /etc/squid
+openssl req -new -newkey rsa:2048 365 -nodes -x509 -keyout squidCA.pem -out squidCA.pem
+openssl x509 -in squidCA.pem -outform DER -out squid.der
+chown squid:squid squidCA.pem
+chmod 400 squidCA.pem
+mkdir -p /var/lib/squid
+/usr/lib64/squid/ssl_crtd -c -s /var/lib/squid/ssl_db
+chown -R squid:squid /var/lib/squid
+//Next edit squid.conf
+http_port 3128 на http_port 3128 ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB cert=/etc/squid/squidCA.pem
+sslcrtd_program /usr/lib64/squid/ssl_crtd -s /var/lib/squid/ssl_db -M 4MB
+sslcrtd_children 5
+ssl_bump server-first all
+sslproxy_cert_error allow all
+sslproxy_flags DONT_VERIFY_PEER
+service squid restart
