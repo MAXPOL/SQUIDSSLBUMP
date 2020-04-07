@@ -16,3 +16,4 @@ ssl_bump server-first all
 sslproxy_cert_error allow all
 sslproxy_flags DONT_VERIFY_PEER
 service squid restart
+---
